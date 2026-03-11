@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue.js Integration - Media Upload API Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/highlight.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --radius: 0.625rem;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin: 2.5rem 0 1rem;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      margin: 2rem 0 0.75rem;
+      color: var(--text);
+    }
+
+    p {
+      margin-bottom: 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    a:hover {
+      border-bottom-color: var(--primary);
+    }
+
+    pre {
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    code {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9rem;
+      color: #a6acaf;
+    }
+
+    .alert {
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius);
+      margin: 1.5rem 0;
+      border-left: 4px solid var(--primary);
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--text);
+    }
+
+    .alert strong {
+      color: var(--text);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .feature-card h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      color: var(--primary);
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: calc(var(--radius) / 2);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .copy-btn.copied {
+      background: #10b981;
+    }
+
+    ul {
+      margin: 1rem 0 1.25rem 2rem;
+      line-height: 1.9;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--primary);
+      text-decoration: none;
+      border: none;
+    }
+
+    .back-link:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <h1>Vue.js Integration</h1>
+    <p>Complete guide to integrating the Media Upload API with Vue.js applications (Vue 2 & 3).</p>
+
+    <h2>Installation</h2>
+    <pre><code class="language-bash">npm install axios</code></pre>
+
+    <h2>Vue 3 Composition API</h2>
+    <pre><code class="language-vue">&lt;template&gt;
+  &lt;div class="uploader"&gt;
+    &lt;input 
+      type="file" 
+      @change="handleFileSelect"
+      accept="image/*,video/*"
+    /&gt;
+    &lt;button 
+      @click="uploadFile"
+      :disabled="!file || uploading"
+    &gt;
+      {{ uploading ? 'Uploading...' : 'Upload' }}
+    &lt;/button&gt;
+    &lt;p v-if="error" class="error"&gt;{{ error }}&lt;/p&gt;
+    &lt;img v-if="url" :src="url" :alt="filename" /&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import { ref } from 'vue';
+import axios from 'axios';
+
+const file = ref(null);
+const uploading = ref(false);
+const error = ref('');
+const url = ref('');
+const filename = ref('');
+
+const handleFileSelect = (e) => {
+  file.value = e.target.files[0];
+  error.value = '';
+};
+
+const uploadFile = async () => {
+  if (!file.value) return;
+
+  const formData = new FormData();
+  formData.append('file', file.value);
+
+  uploading.value = true;
+  error.value = '';
+
+  try {
+    const response = await axios.post(
+      'http://localhost:5000/api/upload/image',
+      formData
+    );
+
+    if (response.data.success) {
+      url.value = response.data.url;
+      filename.value = response.data.originalName;
+      file.value = null;
+    } else {
+      error.value = response.data.error;
+    }
+  } catch (err) {
+    error.value = 'Upload failed: ' + err.message;
+  } finally {
+    uploading.value = false;
+  }
+};
+&lt;/script&gt;
+
+&lt;style scoped&gt;
+.uploader {
+  padding: 2rem;
+  border: 2px dashed #3b82f6;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.error {
+  color: #ef4444;
+  margin-top: 1rem;
+}
+
+img {
+  max-width: 100%;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+&lt;/style&gt;</code></pre>
+
+    <h2>Vue 3 Options API</h2>
+    <pre><code class="language-vue">&lt;template&gt;
+  &lt;div class="uploader"&gt;
+    &lt;input 
+      type="file" 
+      @change="handleFileSelect"
+    /&gt;
+    &lt;button 
+      @click="uploadFile"
+      :disabled="!file || uploading"
+    &gt;
+      {{ uploading ? 'Uploading...' : 'Upload' }}
+    &lt;/button&gt;
+    &lt;p v-if="error" class="error"&gt;{{ error }}&lt;/p&gt;
+    &lt;img v-if="url" :src="url" /&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      file: null,
+      uploading: false,
+      error: '',
+      url: ''
+    };
+  },
+  methods: {
+    handleFileSelect(e) {
+      this.file = e.target.files[0];
+      this.error = '';
+    },
+    async uploadFile() {
+      if (!this.file) return;
+
+      const formData = new FormData();
+      formData.append('file', this.file);
+
+      this.uploading = true;
+      this.error = '';
+
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/api/upload/image',
+          formData
+        );
+
+        if (response.data.success) {
+          this.url = response.data.url;
+          this.file = null;
+        } else {
+          this.error = response.data.error;
+        }
+      } catch (err) {
+        this.error = 'Upload failed';
+      } finally {
+        this.uploading = false;
+      }
+    }
+  }
+};
+&lt;/script&gt;</code></pre>
+
+    <h2>Custom Composable</h2>
+    <pre><code class="language-javascript">// composables/useMediaUpload.js
+import { ref } from 'vue';
+import axios from 'axios';
+
+export function useMediaUpload(apiUrl = 'http://localhost:5000') {
+  const uploading = ref(false);
+  const error = ref('');
+  const progress = ref(0);
+
+  const upload = async (file, type = 'image') => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploading.value = true;
+    error.value = '';
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/upload/${type}`,
+        formData,
+        {
+          onUploadProgress: (e) => {
+            progress.value = (e.loaded / e.total) * 100;
+          }
+        }
+      );
+
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    } catch (err) {
+      error.value = err.message;
+      throw err;
+    } finally {
+      uploading.value = false;
+      progress.value = 0;
+    }
+  };
+
+  return {
+    upload,
+    uploading,
+    error,
+    progress
+  };
+}</code></pre>
+
+    <h2>Vue 2 Component</h2>
+    <pre><code class="language-vue">&lt;template&gt;
+  &lt;div class="uploader"&gt;
+    &lt;input 
+      type="file" 
+      @change="handleFileSelect"
+    /&gt;
+    &lt;button 
+      @click="uploadFile"
+      :disabled="!file || uploading"
+    &gt;
+      {{ uploading ? 'Uploading...' : 'Upload' }}
+    &lt;/button&gt;
+    &lt;p v-if="error" class="error"&gt;{{ error }}&lt;/p&gt;
+    &lt;img v-if="url" :src="url" /&gt;
+    &lt;div v-if="uploading" class="progress"&gt;
+      &lt;div :style="{ width: progress + '%' }"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      file: null,
+      uploading: false,
+      error: '',
+      url: '',
+      progress: 0
+    };
+  },
+  methods: {
+    handleFileSelect(e) {
+      this.file = e.target.files[0];
+      this.error = '';
+    },
+    async uploadFile() {
+      if (!this.file) return;
+
+      const formData = new FormData();
+      formData.append('file', this.file);
+
+      this.uploading = true;
+
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/api/upload/image',
+          formData,
+          {
+            onUploadProgress: (e) => {
+              this.progress = (e.loaded / e.total) * 100;
+            }
+          }
+        );
+
+        if (response.data.success) {
+          this.url = response.data.url;
+        }
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.uploading = false;
+      }
+    }
+  }
+};
+&lt;/script&gt;</code></pre>
+
+    <h2>Drag and Drop Upload</h2>
+    <pre><code class="language-vue">&lt;template&gt;
+  &lt;div 
+    class="drop-zone"
+    @dragover="dragover = true"
+    @dragleave="dragover = false"
+    @drop="handleDrop"
+    :class="{ active: dragover }"
+  &gt;
+    &lt;p v-if="!preview"&gt;Drop files here&lt;/p&gt;
+    &lt;img v-else :src="preview" /&gt;
+    &lt;input 
+      type="file" 
+      @change="handleFileSelect"
+      hidden
+      ref="fileInput"
+    /&gt;
+    &lt;button @click="$refs.fileInput.click()"&gt;
+      Choose File
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import { ref } from 'vue';
+
+const file = ref(null);
+const preview = ref('');
+const dragover = ref(false);
+
+const handleFileSelect = (e) => {
+  file.value = e.target.files[0];
+  createPreview();
+};
+
+const handleDrop = (e) => {
+  e.preventDefault();
+  dragover.value = false;
+  file.value = e.dataTransfer.files[0];
+  createPreview();
+};
+
+const createPreview = () => {
+  if (file.value) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.value = e.target.result;
+    };
+    reader.readAsDataURL(file.value);
+  }
+};
+&lt;/script&gt;</code></pre>
+
+    <h2>Error Handling</h2>
+    <pre><code class="language-vue">&lt;script setup&gt;
+import { ref } from 'vue';
+
+const uploadFile = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch(
+      'http://localhost:5000/api/upload/image',
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+      switch (data.code) {
+        case 'FILE_TOO_LARGE':
+          error.value = 'File is too large. Max 10MB.';
+          break;
+        case 'INVALID_FILE_TYPE':
+          error.value = 'Invalid file type. Use JPG, PNG, WebP, or GIF.';
+          break;
+        default:
+          error.value = data.error;
+      }
+      return;
+    }
+
+    return data.url;
+  } catch (err) {
+    error.value = 'Upload failed: ' + err.message;
+  }
+};
+&lt;/script&gt;</code></pre>
+
+    <div class="alert">
+      <strong>Tip:</strong> Use the composable pattern for better code reuse across multiple Vue components.
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre code').forEach(block => {
+          hljs.highlightElement(block);
+        });
+
+        document.querySelectorAll('pre').forEach(pre => {
+          if (!pre.querySelector('.copy-btn')) {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.textContent = 'Copy';
+            button.onclick = () => {
+              const code = pre.innerText.replace('Copy', '').trim();
+              navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                  button.textContent = 'Copy';
+                }, 2000);
+              });
+            };
+            pre.appendChild(button);
+          }
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>

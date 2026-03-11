@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Media Upload API - Production-ready self-hosted media upload service with comprehensive documentation">
+  <meta name="keywords" content="media upload, API, Express.js, file upload, documentation">
+  <meta name="author" content="Siam Mahmud">
+  <meta property="og:title" content="Media Upload API Documentation">
+  <meta property="og:description" content="Complete guide to building media upload services">
+  <meta property="og:type" content="website">
+  <title>Media Upload API - Developer Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/highlight.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #60a5fa;
+      --secondary: #1f2937;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius: 0.625rem;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo:hover {
+      color: var(--primary-light);
+    }
+
+    .search-box {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 1rem 0;
+    }
+
+    .nav-section {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-section-title {
+      padding: 0.75rem 1.5rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .nav-item {
+      list-style: none;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .nav-link:hover {
+      color: var(--primary);
+      background: rgba(59, 130, 246, 0.08);
+      border-left-color: var(--primary);
+    }
+
+    .nav-link.active {
+      color: var(--primary);
+      background: rgba(59, 130, 246, 0.1);
+      border-left-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-submenu {
+      list-style: none;
+      padding-left: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .nav-submenu.active {
+      max-height: 500px;
+    }
+
+    .nav-submenu .nav-link {
+      padding-left: 3rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .nav-submenu .nav-link.active {
+      color: var(--primary);
+    }
+
+    .nav-toggle {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-toggle:hover {
+      color: var(--primary);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main {
+      padding: 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin: 2.5rem 0 1rem;
+      color: var(--text);
+      line-height: 1.2;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      margin: 2rem 0 0.75rem;
+      color: var(--text);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    p {
+      margin-bottom: 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--primary-light);
+      border-bottom-color: var(--primary);
+    }
+
+    ul, ol {
+      margin: 1rem 0 1.25rem 2rem;
+      line-height: 1.9;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    /* ========== CODE BLOCKS ========== */
+    pre {
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #a6acaf;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .hljs {
+      background: var(--background) !important;
+      color: #a6acaf !important;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: calc(var(--radius) / 2);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      opacity: 0.8;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary-dark);
+      opacity: 1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+    }
+
+    /* ========== TABLES ========== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    tr:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ========== ENDPOINT CARDS ========== */
+    .endpoint {
+      background: var(--surface);
+      border-left: 4px solid var(--primary);
+      padding: 2rem;
+      margin: 2rem 0;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .endpoint:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+    }
+
+    .endpoint-method {
+      display: inline-block;
+      padding: 0.35rem 0.85rem;
+      border-radius: calc(var(--radius) / 2);
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin-right: 1rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .method-get {
+      background: rgba(16, 185, 129, 0.15);
+      color: #4ade80;
+    }
+
+    .method-post {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary-light);
+    }
+
+    .method-delete {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    .endpoint-path {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 1.05rem;
+      color: var(--text);
+      display: block;
+      margin-bottom: 1rem;
+      word-break: break-all;
+    }
+
+    /* ========== ALERT BOXES ========== */
+    .alert {
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius);
+      margin: 1.5rem 0;
+      border-left: 4px solid;
+      background-position: right 1rem center;
+      background-repeat: no-repeat;
+    }
+
+    .alert-info {
+      background: rgba(59, 130, 246, 0.08);
+      border-left-color: var(--primary);
+      color: var(--text);
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.08);
+      border-left-color: var(--success);
+      color: var(--text);
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.08);
+      border-left-color: var(--warning);
+      color: var(--text);
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.08);
+      border-left-color: var(--error);
+      color: var(--text);
+    }
+
+    .alert strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ========== FEATURE GRID ========== */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2.5rem 0;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 1.75rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .feature-card h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      color: var(--primary);
+    }
+
+    .feature-card p {
+      margin-bottom: 0;
+      font-size: 0.95rem;
+    }
+
+    /* ========== RIGHT SIDEBAR - TABLE OF CONTENTS ========== */
+    .toc-sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 2rem 1.5rem;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .toc-title {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .toc-list {
+      list-style: none;
+    }
+
+    .toc-list li {
+      margin-bottom: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .toc-list a {
+      color: var(--text-secondary);
+      border: none;
+      transition: all 0.2s ease;
+      display: block;
+      padding: 0.35rem 0;
+    }
+
+    .toc-list a:hover,
+    .toc-list a.active {
+      color: var(--primary);
+      padding-left: 0.5rem;
+      border-left: 2px solid var(--primary);
+    }
+
+    .toc-list .toc-h3 {
+      padding-left: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .toc-list .toc-h4 {
+      padding-left: 2rem;
+      font-size: 0.8rem;
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      grid-column: 1 / -1;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-section h3 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .footer-section ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .footer-section li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-section a {
+      color: var(--text-secondary);
+      border: none;
+    }
+
+    .footer-section a:hover {
+      color: var(--primary);
+    }
+
+    .footer-credit {
+      grid-column: 1 / -1;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 50%;
+      color: var(--primary);
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .social-links a:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* ========== MOBILE MENU ========== */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* ========== RESPONSIVE DESIGN ========== */
+    @media (max-width: 1300px) {
+      .layout {
+        grid-template-columns: 280px 1fr;
+      }
+
+      .toc-sidebar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .toc-sidebar {
+        display: none;
+      }
+
+      .main {
+        padding: 2rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      h2 {
+        font-size: 1.4rem;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ========== UTILITY ========== */
+    .breadcrumbs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .breadcrumbs a {
+      color: var(--primary);
+      border: none;
+    }
+
+    .breadcrumbs span {
+      color: var(--text-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      border-radius: calc(var(--radius) / 2);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--background);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="logo" onclick="switchSection('introduction', event)">
+          <span>📤</span>
+          <span>Media API</span>
+        </a>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search docs..." onkeyup="filterNav()">
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Getting Started</div>
+          <ul>
+            <li class="nav-item"><a href="#" class="nav-link active" onclick="switchSection('introduction', event)">Introduction</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('quickstart', event)">Quick Start</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('installation', event)">Installation</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <button class="nav-toggle" onclick="toggleNav(this)">API Reference <span>▼</span></button>
+          <ul class="nav-submenu active">
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('api-endpoints', event)">Endpoints Overview</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('upload-image', event)">Upload Image</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('upload-video', event)">Upload Video</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('get-media', event)">Get Media Info</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('delete-media', event)">Delete Media</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('list-media', event)">List Media</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('statistics', event)">Statistics</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <button class="nav-toggle" onclick="toggleNav(this)">Frontend Integration <span>▼</span></button>
+          <ul class="nav-submenu">
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('react', event)">React</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('nextjs', event)">Next.js</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('vue', event)">Vue</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('vite', event)">Vite</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('angular', event)">Angular</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('svelte', event)">Svelte</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('vanilla', event)">Vanilla JS</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <button class="nav-toggle" onclick="toggleNav(this)">Backend Integration <span>▼</span></button>
+          <ul class="nav-submenu">
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('nodejs', event)">Node.js</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('python', event)">Python</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('php', event)">PHP</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('go', event)">Go</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <button class="nav-toggle" onclick="toggleNav(this)">Examples <span>▼</span></button>
+          <ul class="nav-submenu">
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('basic-upload', event)">Basic Upload</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('multiple-upload', event)">Multiple Upload</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('drag-drop', event)">Drag & Drop</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('progress', event)">Upload Progress</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Resources</div>
+          <ul>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('security', event)">Security</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('deployment', event)">Deployment</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('npm-publishing', event)">NPM Publishing</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('troubleshooting', event)">Troubleshooting</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('errors', event)">Error Codes</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Community</div>
+          <ul>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="switchSection('community', event)">Join Community</a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <!-- Introduction Section -->
+      <section id="introduction" class="section active">
+        <div class="breadcrumbs">
+          <span>Docs</span> <span>/</span> <span>Introduction</span>
+        </div>
+        
+        <h1>Media Upload API</h1>
+        <p>A production-ready, self-hosted media upload service built with Express.js. Deploy a Cloudinary-like solution with complete control over your media infrastructure.</p>
+        
+        <div class="alert alert-info">
+          <strong>Welcome to the documentation!</strong> This guide will help you integrate and deploy the Media Upload API. Start with <a href="#" onclick="switchSection('quickstart', event)">Quick Start</a> or explore the API reference.
+        </div>
+
+        <h2>Key Features</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>🖼️ Image Upload</h3>
+            <p>Support for JPG, PNG, WebP, and GIF with automatic validation and optional compression</p>
+          </div>
+          <div class="feature-card">
+            <h3>🎥 Video Upload</h3>
+            <p>Large file support up to 2GB with MP4, MOV, WebM, AVI, and MKV formats</p>
+          </div>
+          <div class="feature-card">
+            <h3>🔐 Enterprise Security</h3>
+            <p>Rate limiting, CORS protection, API keys, and comprehensive file validation</p>
+          </div>
+          <div class="feature-card">
+            <h3>📦 NPM Package</h3>
+            <p>Easy integration as an npm package for any Express application</p>
+          </div>
+          <div class="feature-card">
+            <h3>⚡ High Performance</h3>
+            <p>UUID-based naming, optimized storage, and fast retrieval speeds</p>
+          </div>
+          <div class="feature-card">
+            <h3>📊 Real-time Stats</h3>
+            <p>Built-in endpoints for file statistics and storage management</p>
+          </div>
+        </div>
+
+        <h2>Why Choose This API?</h2>
+        <ul>
+          <li>Full control over your media infrastructure</li>
+          <li>Self-hosted alternative to Cloudinary or similar services</li>
+          <li>Production-ready code with comprehensive tests</li>
+          <li>Extensive documentation and integration guides</li>
+          <li>Deploy on any VPS, Docker, Railway, Render, or Heroku</li>
+          <li>MIT Licensed - use commercially without restrictions</li>
+          <li>Active community and regular updates</li>
+        </ul>
+
+        <h2>Perfect For</h2>
+        <ul>
+          <li>SaaS platforms that handle user uploads</li>
+          <li>Content management systems</li>
+          <li>Social media applications</li>
+          <li>E-commerce platforms with product images/videos</li>
+          <li>Portfolio and creative platforms</li>
+          <li>Educational platforms with media content</li>
+        </ul>
+
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="#" onclick="switchSection('quickstart', event)">⚡ Get started in 5 minutes</a></li>
+          <li><a href="#" onclick="switchSection('api-endpoints', event)">📚 Explore the full API</a></li>
+          <li><a href="#" onclick="switchSection('react', event)">⚛️ React integration guide</a></li>
+          <li><a href="#" onclick="switchSection('deployment', event)">🚀 Deploy to production</a></li>
+        </ul>
+      </section>
+
+      <!-- Quick Start Section -->
+      <section id="quickstart" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Quick Start</span>
+        </div>
+
+        <h1>Quick Start</h1>
+        <p>Get the Media Upload API running in 5 minutes with this guided setup.</p>
+
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>Node.js 14 or higher</li>
+          <li>npm or yarn</li>
+          <li>A code editor (VS Code recommended)</li>
+        </ul>
+
+        <h2>Step 1: Clone the Repository</h2>
+        <pre><code class="language-bash">git clone https://github.com/yourusername/media-upload-api.git
+cd media-upload-api</code></pre>
+
+        <h2>Step 2: Install Dependencies</h2>
+        <pre><code class="language-bash">npm install</code></pre>
+
+        <h2>Step 3: Configure Environment</h2>
+        <pre><code class="language-bash">cp .env.example .env</code></pre>
+        <p>The default configuration works for local development. Edit <code>.env</code> for production settings.</p>
+
+        <h2>Step 4: Start the Server</h2>
+        <pre><code class="language-bash">npm run dev</code></pre>
+        <p>The server will start on <code>http://localhost:5000</code></p>
+
+        <h2>Step 5: Test Your First Upload</h2>
+        <pre><code class="language-bash">curl -X POST http://localhost:5000/api/upload/image \
+  -F "file=@your-image.jpg"</code></pre>
+
+        <h2>Expected Response</h2>
+        <pre><code class="language-json">{
+  "success": true,
+  "type": "image",
+  "filename": "550e8400-e29b-41d4-a716-446655440000.jpg",
+  "size": "2.5 MB",
+  "url": "http://localhost:5000/uploads/images/550e8400-e29b-41d4-a716-446655440000.jpg",
+  "uploadDate": "2024-01-15T10:30:00Z"
+}</code></pre>
+
+        <div class="alert alert-success">
+          <strong>Success!</strong> Your Media Upload API is running. You can now integrate it with your frontend.
+        </div>
+
+        <h2>Next Steps</h2>
+        <ul>
+          <li><a href="#" onclick="switchSection('react', event)">Integrate with React</a></li>
+          <li><a href="#" onclick="switchSection('api-endpoints', event)">Explore all API endpoints</a></li>
+          <li><a href="#" onclick="switchSection('deployment', event)">Deploy to production</a></li>
+          <li><a href="#" onclick="switchSection('troubleshooting', event)">Troubleshooting guide</a></li>
+        </ul>
+      </section>
+
+      <!-- Installation Section -->
+      <section id="installation" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Installation</span>
+        </div>
+
+        <h1>Installation</h1>
+        <p>Multiple ways to install and use the Media Upload API depending on your needs.</p>
+
+        <h2>Prerequisites</h2>
+        <ul>
+          <li><strong>Node.js:</strong> 14.0.0 or higher</li>
+          <li><strong>npm/yarn:</strong> Latest version</li>
+          <li><strong>Disk Space:</strong> At least 500MB free</li>
+          <li><strong>OS Support:</strong> Windows, macOS, Linux</li>
+        </ul>
+
+        <h2>Option 1: From Source</h2>
+        <p>Clone the repository and run locally:</p>
+        <pre><code class="language-bash">git clone https://github.com/yourusername/media-upload-api.git
+cd media-upload-api
+npm install
+npm run dev</code></pre>
+
+        <h2>Option 2: NPM Package</h2>
+        <p>Install as an npm package in your existing Express app:</p>
+        <pre><code class="language-bash">npm install express-media-uploader</code></pre>
+
+        <h2>Usage as NPM Package</h2>
+        <pre><code class="language-javascript">import express from 'express';
+import { createUploader } from 'express-media-uploader';
+
+const app = express();
+
+const uploader = createUploader({
+  uploadDir: './uploads',
+  imageLimit: '10MB',
+  videoLimit: '2GB',
+  enableCompression: true
+});
+
+app.use(uploader);
+app.use('/uploads', express.static('uploads'));
+
+app.listen(5000, () => {
+  console.log('Server running on port 5000');
+});</code></pre>
+
+        <h2>Verify Installation</h2>
+        <p>Test that everything is working:</p>
+        <pre><code class="language-bash">curl http://localhost:5000/api/media/statistics</code></pre>
+
+        <div class="alert alert-info">
+          <strong>Tip:</strong> The upload directories are created automatically on first run. No manual setup needed.
+        </div>
+
+        <h2>Environment Variables</h2>
+        <p>Create a <code>.env</code> file in your project root:</p>
+        <pre><code class="language-env"># Server Configuration
+PORT=5000
+NODE_ENV=development
+API_URL=http://localhost:5000
+
+# Upload Configuration
+UPLOAD_DIR=./uploads
+MAX_IMAGE_SIZE=10485760
+MAX_VIDEO_SIZE=2147483648
+
+# Rate Limiting
+RATE_LIMIT_WINDOW=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Security
+ENABLE_API_KEY_AUTH=false
+API_KEY_SECRET=your-secret-key</code></pre>
+      </section>
+
+      <!-- API Endpoints Section -->
+      <section id="api-endpoints" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <a href="#" onclick="switchSection('api-endpoints', event)">API</a> <span>/</span> <span>Endpoints Overview</span>
+        </div>
+
+        <h1>API Reference</h1>
+        <p>Complete reference for all Media Upload API endpoints.</p>
+
+        <h2>Base URL</h2>
+        <pre><code>http://localhost:5000/api</code></pre>
+
+        <h2>Authentication</h2>
+        <p>Optional API key authentication can be enabled in <code>.env</code>:</p>
+        <pre><code class="language-bash">ENABLE_API_KEY_AUTH=true
+API_KEY_SECRET=your-secret-key</code></pre>
+
+        <h2>Available Endpoints</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="endpoint-method method-post">POST</span></td>
+              <td><code>/upload/image</code></td>
+              <td>Upload an image file</td>
+            </tr>
+            <tr>
+              <td><span class="endpoint-method method-post">POST</span></td>
+              <td><code>/upload/video</code></td>
+              <td>Upload a video file</td>
+            </tr>
+            <tr>
+              <td><span class="endpoint-method method-get">GET</span></td>
+              <td><code>/media/:filename</code></td>
+              <td>Get file metadata</td>
+            </tr>
+            <tr>
+              <td><span class="endpoint-method method-delete">DELETE</span></td>
+              <td><code>/media/:filename</code></td>
+              <td>Delete a file</td>
+            </tr>
+            <tr>
+              <td><span class="endpoint-method method-get">GET</span></td>
+              <td><code>/media/list/:type</code></td>
+              <td>List files by type</td>
+            </tr>
+            <tr>
+              <td><span class="endpoint-method method-get">GET</span></td>
+              <td><code>/media/statistics</code></td>
+              <td>Get storage statistics</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Response Format</h2>
+        <p>All API responses follow a consistent format:</p>
+        <pre><code class="language-json">{
+  "success": true,
+  "type": "image",
+  "filename": "uuid.jpg",
+  "originalName": "original-filename.jpg",
+  "size": "2.5 MB",
+  "sizeBytes": 2621440,
+  "url": "http://localhost:5000/uploads/images/uuid.jpg",
+  "uploadDate": "2024-01-15T10:30:00Z"
+}</code></pre>
+
+        <h2>Error Responses</h2>
+        <pre><code class="language-json">{
+  "success": false,
+  "error": "File too large",
+  "code": "FILE_TOO_LARGE",
+  "message": "Maximum file size is 10MB"
+}</code></pre>
+      </section>
+
+      <!-- React Integration Section -->
+      <section id="react" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <a href="#">Frontend</a> <span>/</span> <span>React</span>
+        </div>
+
+        <h1>React Integration</h1>
+        <p>Complete guide to integrating the Media Upload API with React applications.</p>
+
+        <h2>Installation</h2>
+        <pre><code class="language-bash">npm install axios</code></pre>
+
+        <h2>Basic Upload Component</h2>
+        <pre><code class="language-jsx">import { useState } from 'react';
+
+export function MediaUploader() {
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/upload/image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUrl(data.url);
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Upload failed: ' + err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;input type="file" onChange={handleChange} /&gt;
+      &lt;button onClick={handleUpload} disabled={!file || uploading}&gt;
+        {uploading ? 'Uploading...' : 'Upload'}
+      &lt;/button&gt;
+      {url && &lt;img src={url} alt="Uploaded" /&gt;}
+      {error && &lt;p style={{ color: 'red' }}&gt;{error}&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <h2>Advanced Hook Pattern</h2>
+        <pre><code class="language-jsx">import { useState, useCallback } from 'react';
+
+export function useMediaUpload(apiUrl = 'http://localhost:5000') {
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
+
+  const upload = useCallback(async (file, type = 'image') => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', (e) => {
+        setProgress((e.loaded / e.total) * 100);
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          return data.url;
+        } else {
+          throw new Error('Upload failed');
+        }
+      });
+
+      xhr.open('POST', `${apiUrl}/api/upload/${type}`);
+      xhr.send(formData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  }, [apiUrl]);
+
+  return { upload, uploading, progress, error };
+}</code></pre>
+
+        <h2>Complete Example with Preview</h2>
+        <pre><code class="language-jsx">import { useState } from 'react';
+import './MediaUploader.css';
+
+export function MediaUploader() {
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploaded, setUploaded] = useState([]);
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const droppedFile = e.dataTransfer.files[0];
+    handleFileSelect(droppedFile);
+  };
+
+  const handleFileSelect = (f) => {
+    setFile(f);
+    const reader = new FileReader();
+    reader.onload = (e) => setPreview(e.target.result);
+    reader.readAsDataURL(f);
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/upload/image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setUploaded([...uploaded, data]);
+        setFile(null);
+        setPreview('');
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    &lt;div className="uploader"&gt;
+      &lt;div 
+        className="drop-zone" 
+        onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+      &gt;
+        {preview ? (
+          &lt;img src={preview} alt="preview" /&gt;
+        ) : (
+          &lt;p&gt;Drop files here or click to select&lt;/p&gt;
+        )}
+        &lt;input 
+          type="file" 
+          onChange={(e) => handleFileSelect(e.target.files[0])}
+        /&gt;
+      &lt;/div&gt;
+      &lt;button onClick={handleUpload} disabled={uploading || !file}&gt;
+        {uploading ? 'Uploading...' : 'Upload'}
+      &lt;/button&gt;
+      &lt;div className="uploaded-list"&gt;
+        {uploaded.map((item) => (
+          &lt;div key={item.filename} className="uploaded-item"&gt;
+            &lt;img src={item.url} alt={item.filename} /&gt;
+            &lt;p&gt;{item.originalName}&lt;/p&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <h2>Error Handling</h2>
+        <pre><code class="language-jsx">const [error, setError] = useState(null);
+
+const handleUpload = async (file) => {
+  try {
+    const response = await fetch('http://localhost:5000/api/upload/image', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      switch (data.code) {
+        case 'FILE_TOO_LARGE':
+          setError('File is too large. Max 10MB for images.');
+          break;
+        case 'INVALID_FILE_TYPE':
+          setError('Invalid file type. Use JPG, PNG, WebP, or GIF.');
+          break;
+        default:
+          setError(data.error);
+      }
+      return;
+    }
+
+    // Handle success
+  } catch (err) {
+    setError(err.message);
+  }
+};</code></pre>
+      </section>
+
+      <!-- Next.js Integration Section -->
+      <section id="nextjs" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <a href="#">Frontend</a> <span>/</span> <span>Next.js</span>
+        </div>
+
+        <h1>Next.js Integration</h1>
+        <p>Integrate Media Upload API with Next.js applications using both App and Pages Router.</p>
+
+        <h2>Installation</h2>
+        <pre><code class="language-bash">npm install axios next-cloudinary</code></pre>
+
+        <h2>App Router Component</h2>
+        <pre><code class="language-jsx">'use client';
+
+import { useState } from 'react';
+
+export default function Uploader() {
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [url, setUrl] = useState('');
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setUrl(data.url);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    &lt;form onSubmit={handleUpload}&gt;
+      &lt;input 
+        type="file" 
+        onChange={(e) => setFile(e.target.files[0])}
+      /&gt;
+      &lt;button disabled={uploading || !file}&gt;
+        {uploading ? 'Uploading...' : 'Upload'}
+      &lt;/button&gt;
+      {url && &lt;img src={url} alt="uploaded" /&gt;}
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+        <h2>API Route Handler (App Router)</h2>
+        <pre><code class="language-javascript">// app/api/upload/route.js
+import { NextResponse } from 'next/server';
+import axios from 'axios';
+
+export async function POST(request) {
+  const formData = await request.formData();
+  const file = formData.get('file');
+
+  try {
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+
+    const response = await axios.post(
+      'http://localhost:5000/api/upload/image',
+      uploadFormData,
+      {
+        headers: uploadFormData.getHeaders()
+      }
+    );
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}</code></pre>
+
+        <h2>Custom Hook for Next.js</h2>
+        <pre><code class="language-javascript">// hooks/useMediaUpload.js
+import { useState, useCallback } from 'react';
+
+export function useMediaUpload() {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const upload = useCallback(async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  return { upload, uploading, error };
+}</code></pre>
+
+        <h2>TypeScript Support</h2>
+        <pre><code class="language-typescript">// hooks/useMediaUpload.ts
+import { useState, useCallback } from 'react';
+
+interface UploadResponse {
+  success: boolean;
+  type: string;
+  filename: string;
+  url: string;
+  size: string;
+  uploadDate: string;
+}
+
+export function useMediaUpload() {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState&lt;string | null&gt;(null);
+
+  const upload = useCallback(async (
+    file: File
+  ): Promise&lt;UploadResponse&gt; => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data: UploadResponse = await response.json();
+      return data;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(message);
+      throw err;
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  return { upload, uploading, error };
+}</code></pre>
+      </section>
+
+      <!-- Deployment Section -->
+      <section id="deployment" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Deployment</span>
+        </div>
+
+        <h1>Deployment Guide</h1>
+        <p>Complete guides for deploying the Media Upload API to various platforms.</p>
+
+        <h2>Docker Deployment</h2>
+        <pre><code class="language-bash">docker build -t media-api .
+docker run -p 5000:5000 -v uploads:/app/uploads media-api</code></pre>
+
+        <h2>Docker Compose</h2>
+        <pre><code class="language-yaml">version: '3.8'
+services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - NODE_ENV=production
+      - PORT=5000</code></pre>
+
+        <h2>Railway Deployment</h2>
+        <ol>
+          <li>Connect your GitHub repository</li>
+          <li>Railway automatically detects Node.js</li>
+          <li>Set environment variables in Railway dashboard</li>
+          <li>Deploy with a single click</li>
+        </ol>
+
+        <h2>Render Deployment</h2>
+        <ol>
+          <li>Create a new Web Service on Render</li>
+          <li>Connect your GitHub repository</li>
+          <li>Set Build Command: <code>npm install</code></li>
+          <li>Set Start Command: <code>npm start</code></li>
+          <li>Add environment variables</li>
+        </ol>
+
+        <h2>Environment Variables for Production</h2>
+        <pre><code class="language-env">NODE_ENV=production
+PORT=5000
+API_URL=https://your-domain.com
+RATE_LIMIT_MAX_REQUESTS=1000
+ENABLE_API_KEY_AUTH=true
+API_KEY_SECRET=your-secure-secret-key</code></pre>
+      </section>
+
+      <!-- Security Section -->
+      <section id="security" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Security</span>
+        </div>
+
+        <h1>Security Guide</h1>
+        <p>Best practices for securing your Media Upload API in production.</p>
+
+        <h2>Rate Limiting</h2>
+        <p>Built-in rate limiting protects against abuse:</p>
+        <pre><code class="language-env">RATE_LIMIT_WINDOW=900000
+RATE_LIMIT_MAX_REQUESTS=100</code></pre>
+
+        <h2>File Validation</h2>
+        <ul>
+          <li>MIME type checking</li>
+          <li>File extension validation</li>
+          <li>File size limits (configurable)</li>
+          <li>Magic number detection</li>
+        </ul>
+
+        <h2>API Key Authentication</h2>
+        <pre><code class="language-bash">ENABLE_API_KEY_AUTH=true
+API_KEY_SECRET=your-secure-secret</code></pre>
+
+        <h2>CORS Protection</h2>
+        <p>Configure allowed origins in production:</p>
+        <pre><code class="language-javascript">CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com</code></pre>
+
+        <h2>SSL/TLS</h2>
+        <p>Always use HTTPS in production. Most deployment platforms provide free SSL certificates.</p>
+
+        <h2>File Storage Security</h2>
+        <ul>
+          <li>Store uploads outside the web root</li>
+          <li>Use UUID-based filenames to prevent enumeration</li>
+          <li>Implement access control lists</li>
+          <li>Regular security audits</li>
+        </ul>
+      </section>
+
+      <!-- Troubleshooting Section -->
+      <section id="troubleshooting" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Troubleshooting</span>
+        </div>
+
+        <h1>Troubleshooting Guide</h1>
+        <p>Solutions for common issues and questions.</p>
+
+        <h2>Upload Not Working</h2>
+        <div class="alert alert-warning">
+          <strong>Check these:</strong>
+          <ul>
+            <li>Server is running: <code>curl http://localhost:5000/api/media/statistics</code></li>
+            <li>File format is supported (JPG, PNG, WebP, GIF for images)</li>
+            <li>File size is under the limit (10MB for images)</li>
+            <li>CORS is enabled if uploading from different domain</li>
+          </ul>
+        </div>
+
+        <h2>File Too Large Error</h2>
+        <p>Adjust limits in <code>.env</code>:</p>
+        <pre><code class="language-env">MAX_IMAGE_SIZE=20971520
+MAX_VIDEO_SIZE=5368709120</code></pre>
+
+        <h2>CORS Issues</h2>
+        <pre><code class="language-env">CORS_ENABLED=true
+CORS_ORIGINS=http://localhost:3000,https://yourdomain.com</code></pre>
+
+        <h2>Port Already in Use</h2>
+        <pre><code class="language-bash">lsof -i :5000
+kill -9 &lt;PID&gt;</code></pre>
+
+        <h2>Permission Denied on Uploads Folder</h2>
+        <pre><code class="language-bash">chmod -R 755 uploads/
+chown -R your-user:your-user uploads/</code></pre>
+      </section>
+
+      <!-- Error Codes Section -->
+      <section id="errors" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Error Codes</span>
+        </div>
+
+        <h1>Error Codes Reference</h1>
+        <p>Complete list of error codes and their meanings.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Error Code</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>FILE_TOO_LARGE</code></td>
+              <td>413</td>
+              <td>File exceeds size limit</td>
+              <td>Check file size limits in .env</td>
+            </tr>
+            <tr>
+              <td><code>INVALID_FILE_TYPE</code></td>
+              <td>400</td>
+              <td>File format not supported</td>
+              <td>Use supported formats (JPG, PNG, WebP, GIF)</td>
+            </tr>
+            <tr>
+              <td><code>UPLOAD_FAILED</code></td>
+              <td>500</td>
+              <td>Server error during upload</td>
+              <td>Check server logs and disk space</td>
+            </tr>
+            <tr>
+              <td><code>FILE_NOT_FOUND</code></td>
+              <td>404</td>
+              <td>File doesn't exist</td>
+              <td>Verify filename is correct</td>
+            </tr>
+            <tr>
+              <td><code>UNAUTHORIZED</code></td>
+              <td>401</td>
+              <td>Invalid or missing API key</td>
+              <td>Check your API key configuration</td>
+            </tr>
+            <tr>
+              <td><code>RATE_LIMIT_EXCEEDED</code></td>
+              <td>429</td>
+              <td>Too many requests</td>
+              <td>Wait and retry. Configure limits in .env</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Community Section -->
+      <section id="community" class="section">
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchSection('introduction', event)">Docs</a> <span>/</span> <span>Community</span>
+        </div>
+
+        <h1>Join Our Community</h1>
+        <p>Connect with other developers using the Media Upload API. Share projects, ask questions, and help each other build amazing things.</p>
+
+        <div class="alert alert-info">
+          <strong>Join thousands of developers</strong> who are using Media Upload API to power their applications.
+        </div>
+
+        <h2>Discord Server</h2>
+        <p>Get real-time help, share your projects, and discuss features with the community.</p>
+        <ul>
+          <li>Live chat with developers</li>
+          <li>Quick answers to your questions</li>
+          <li>Share your integrations</li>
+          <li>Get updates on new features</li>
+        </ul>
+        <p><a href="https://discord.gg/yourinvite" target="_blank">Join Discord Server →</a></p>
+
+        <h2>GitHub Discussions</h2>
+        <p>Start a discussion, ask questions, or propose ideas on GitHub.</p>
+        <p><a href="https://github.com/yourusername/media-upload-api/discussions" target="_blank">Visit GitHub Discussions →</a></p>
+
+        <h2>Twitter/X</h2>
+        <p>Follow for updates, tips, and announcements.</p>
+        <p><a href="https://twitter.com/yourusername" target="_blank">Follow on Twitter →</a></p>
+
+        <h2>Contribute</h2>
+        <p>Help improve the Media Upload API by contributing code, documentation, or feedback.</p>
+        <ul>
+          <li><a href="https://github.com/yourusername/media-upload-api">Star on GitHub</a></li>
+          <li><a href="https://github.com/yourusername/media-upload-api/fork">Fork the repository</a></li>
+          <li><a href="https://github.com/yourusername/media-upload-api/issues">Report issues</a></li>
+          <li><a href="https://github.com/yourusername/media-upload-api/pulls">Submit pull requests</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <!-- RIGHT SIDEBAR - TABLE OF CONTENTS -->
+    <aside class="toc-sidebar">
+      <div class="toc-title">On This Page</div>
+      <ul class="toc-list" id="toc">
+        <!-- Generated dynamically by JavaScript -->
+      </ul>
+    </aside>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Getting Started</h3>
+        <ul>
+          <li><a href="#" onclick="switchSection('quickstart', event)">Quick Start</a></li>
+          <li><a href="#" onclick="switchSection('installation', event)">Installation</a></li>
+          <li><a href="#" onclick="switchSection('api-endpoints', event)">API Reference</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Integration Guides</h3>
+        <ul>
+          <li><a href="#" onclick="switchSection('react', event)">React</a></li>
+          <li><a href="#" onclick="switchSection('nextjs', event)">Next.js</a></li>
+          <li><a href="#" onclick="switchSection('vue', event)">Vue.js</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Resources</h3>
+        <ul>
+          <li><a href="#" onclick="switchSection('security', event)">Security</a></li>
+          <li><a href="#" onclick="switchSection('deployment', event)">Deployment</a></li>
+          <li><a href="#" onclick="switchSection('troubleshooting', event)">Troubleshooting</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://discord.gg/yourinvite" target="_blank">Discord</a></li>
+          <li><a href="https://github.com/yourusername/media-upload-api" target="_blank">GitHub</a></li>
+          <li><a href="#" onclick="switchSection('community', event)">Join Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-credit">
+      <p>Built with ❤️ by <strong>Siam Mahmud</strong></p>
+      <p>Media Upload API - Open Source Project</p>
+      <div class="social-links">
+        <a href="https://github.com/yourusername" title="GitHub" target="_blank">GitHub</a>
+        <a href="https://twitter.com/yourusername" title="Twitter" target="_blank">Twitter</a>
+        <a href="https://discord.gg/yourinvite" title="Discord" target="_blank">Discord</a>
+        <a href="https://instagram.com/yourusername" title="Instagram" target="_blank">Instagram</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
+  <script>
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setActiveSection('introduction');
+      generateTableOfContents();
+      setupSearchListener();
+      highlightCode();
+      addCopyButtons();
+    });
+
+    // Section Switching
+    function switchSection(sectionId, event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      const sections = document.querySelectorAll('.section');
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      sections.forEach(s => s.classList.remove('active'));
+      navLinks.forEach(l => l.classList.remove('active'));
+
+      const activeSection = document.getElementById(sectionId);
+      if (activeSection) {
+        activeSection.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+
+      const activeLink = document.querySelector(`[onclick*="${sectionId}"]`);
+      if (activeLink) {
+        activeLink.classList.add('active');
+      }
+
+      setActiveSection(sectionId);
+      generateTableOfContents();
+      highlightCode();
+      addCopyButtons();
+      closeMobileMenu();
+    }
+
+    function setActiveSection(sectionId) {
+      localStorage.setItem('activeSection', sectionId);
+    }
+
+    // Navigation Toggle
+    function toggleNav(button) {
+      const submenu = button.nextElementSibling;
+      submenu.classList.toggle('active');
+      const arrow = button.querySelector('span:last-child');
+      arrow.textContent = submenu.classList.contains('active') ? '▼' : '▶';
+    }
+
+    // Mobile Menu
+    function toggleMobileMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    function closeMobileMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.remove('open');
+    }
+
+    // Search
+    function filterNav() {
+      const searchBox = document.getElementById('search');
+      const query = searchBox.value.toLowerCase();
+      const navItems = document.querySelectorAll('.nav-item');
+
+      navItems.forEach(item => {
+        const link = item.querySelector('.nav-link');
+        const text = link.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? 'block' : 'none';
+      });
+    }
+
+    // Table of Contents Generation
+    function generateTableOfContents() {
+      const activeSection = document.querySelector('.section.active');
+      if (!activeSection) return;
+
+      const toc = document.getElementById('toc');
+      toc.innerHTML = '';
+
+      const headings = activeSection.querySelectorAll('h2, h3, h4');
+      headings.forEach((heading, index) => {
+        const level = heading.tagName.toLowerCase();
+        const id = `heading-${index}`;
+        heading.id = id;
+
+        const li = document.createElement('li');
+        li.className = `toc-${level}`;
+
+        const a = document.createElement('a');
+        a.href = '#';
+        a.textContent = heading.textContent;
+        a.onclick = (e) => {
+          e.preventDefault();
+          heading.scrollIntoView({ behavior: 'smooth' });
+          updateActiveTOC(a);
+        };
+
+        li.appendChild(a);
+        toc.appendChild(li);
+      });
+    }
+
+    function updateActiveTOC(link) {
+      const tocLinks = document.querySelectorAll('.toc-list a');
+      tocLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    }
+
+    // Code Highlighting
+    function highlightCode() {
+      document.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
+      });
+    }
+
+    // Copy Button
+    function addCopyButtons() {
+      document.querySelectorAll('pre').forEach(pre => {
+        if (!pre.querySelector('.copy-btn')) {
+          const button = document.createElement('button');
+          button.className = 'copy-btn';
+          button.textContent = 'Copy';
+          button.onclick = () => copyCode(button);
+          pre.appendChild(button);
+        }
+      });
+    }
+
+    function copyCode(button) {
+      const code = button.parentElement.innerText.replace('Copy', '').trim();
+      navigator.clipboard.writeText(code).then(() => {
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+          button.textContent = 'Copy';
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Search Setup
+    function setupSearchListener() {
+      const searchBox = document.getElementById('search');
+      searchBox.addEventListener('keyup', () => {
+        // Implement full-text search here
+      });
+    }
+
+    // Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'GA_MEASUREMENT_ID');
+
+    // Track page views
+    function trackPageView(page) {
+      if (typeof gtag !== 'undefined') {
+        gtag('config', 'GA_MEASUREMENT_ID', {
+          'page_path': '/' + page,
+          'page_title': page.charAt(0).toUpperCase() + page.slice(1)
+        });
+      }
+    }
+
+    // Track section switches
+    const originalSwitch = switchSection;
+    window.switchSection = function(sectionId, event) {
+      originalSwitch(sectionId, event);
+      trackPageView(sectionId);
+    };
+  </script>
+</body>
+</html>

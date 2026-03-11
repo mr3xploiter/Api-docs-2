@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Detailed Reference - Media Upload API Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/highlight.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --success: #10b981;
+      --radius: 0.625rem;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary); }
+    h2 { font-size: 1.8rem; margin: 2.5rem 0 1rem; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; }
+    h3 { font-size: 1.3rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    p { margin-bottom: 1.25rem; color: var(--text-secondary); line-height: 1.8; }
+    a { color: var(--primary); text-decoration: none; border-bottom: 1px solid rgba(59, 130, 246, 0.3); }
+    a:hover { border-bottom-color: var(--primary); }
+    pre { background: var(--background); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; position: relative; }
+    code { font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem; color: #a6acaf; }
+    .endpoint-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .method-badge {
+      display: inline-block;
+      padding: 0.35rem 0.85rem;
+      border-radius: calc(var(--radius) / 2);
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin-right: 1rem;
+      text-transform: uppercase;
+    }
+    .method-post {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+    .method-get {
+      background: rgba(16, 185, 129, 0.15);
+      color: #4ade80;
+    }
+    .method-delete {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .back-link { display: inline-block; margin-bottom: 2rem; padding: 0.75rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--primary); text-decoration: none; }
+    .back-link:hover { background: rgba(59, 130, 246, 0.1); }
+    ul { margin: 1rem 0 1.25rem 2rem; }
+    li { margin-bottom: 0.5rem; color: var(--text-secondary); }
+    .copy-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: calc(var(--radius) / 2); cursor: pointer; font-size: 0.85rem; }
+    .copy-btn:hover { background: var(--primary-dark); }
+    .copy-btn.copied { background: var(--success); }
+    .alert { padding: 1.25rem 1.5rem; border-radius: var(--radius); margin: 1.5rem 0; border-left: 4px solid var(--primary); background: rgba(59, 130, 246, 0.08); color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <h1>API Detailed Reference</h1>
+    <p>Complete reference for all Media Upload API endpoints with examples and response formats.</p>
+
+    <h2>POST /upload/image</h2>
+    <div class="endpoint-card">
+      <div>
+        <span class="method-badge method-post">POST</span>
+        <code>/api/upload/image</code>
+      </div>
+      <p>Upload a single image file to the server.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>file</td>
+          <td>File</td>
+          <td>Yes</td>
+          <td>Image file (multipart/form-data)</td>
+        </tr>
+      </table>
+
+      <h3>Supported Formats</h3>
+      <ul>
+        <li>JPEG (.jpg, .jpeg)</li>
+        <li>PNG (.png)</li>
+        <li>WebP (.webp)</li>
+        <li>GIF (.gif)</li>
+      </ul>
+
+      <h3>Size Limits</h3>
+      <ul>
+        <li>Maximum: 10 MB</li>
+        <li>Minimum: 1 KB</li>
+      </ul>
+
+      <h3>Example Request</h3>
+      <pre><code class="language-bash">curl -X POST http://localhost:5000/api/upload/image \
+  -F "file=@image.jpg" \
+  -H "Accept: application/json"</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code class="language-json">{
+  "success": true,
+  "type": "image",
+  "filename": "550e8400-e29b-41d4-a716-446655440000.jpg",
+  "originalName": "my-photo.jpg",
+  "size": "2.5 MB",
+  "sizeBytes": 2621440,
+  "url": "http://localhost:5000/uploads/images/550e8400-e29b-41d4-a716-446655440000.jpg",
+  "uploadDate": "2024-01-15T10:30:00Z",
+  "mimeType": "image/jpeg"
+}</code></pre>
+
+      <h3>Error Response</h3>
+      <pre><code class="language-json">{
+  "success": false,
+  "error": "File too large",
+  "code": "FILE_TOO_LARGE",
+  "message": "Maximum file size is 10MB. Your file is 15MB."
+}</code></pre>
+
+      <div class="alert">
+        <strong>Note:</strong> Files are renamed using UUID v4 to prevent filename conflicts and improve security.
+      </div>
+    </div>
+
+    <h2>POST /upload/video</h2>
+    <div class="endpoint-card">
+      <div>
+        <span class="method-badge method-post">POST</span>
+        <code>/api/upload/video</code>
+      </div>
+      <p>Upload a single video file to the server. Supports large files up to 2GB.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>file</td>
+          <td>File</td>
+          <td>Yes</td>
+          <td>Video file (multipart/form-data)</td>
+        </tr>
+      </table>
+
+      <h3>Supported Formats</h3>
+      <ul>
+        <li>MP4 (.mp4)</li>
+        <li>MOV (.mov)</li>
+        <li>WebM (.webm)</li>
+        <li>AVI (.avi)</li>
+        <li>MKV (.mkv)</li>
+      </ul>
+
+      <h3>Size Limits</h3>
+      <ul>
+        <li>Maximum: 2 GB</li>
+        <li>Minimum: 100 KB</li>
+      </ul>
+
+      <h3>Example Request</h3>
+      <pre><code class="language-bash">curl -X POST http://localhost:5000/api/upload/video \
+  -F "file=@video.mp4"</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code class="language-json">{
+  "success": true,
+  "type": "video",
+  "filename": "a1b2c3d4-e5f6-4a8b-9c0d-1e2f3a4b5c6d.mp4",
+  "originalName": "my-video.mp4",
+  "size": "150 MB",
+  "sizeBytes": 157286400,
+  "url": "http://localhost:5000/uploads/videos/a1b2c3d4-e5f6-4a8b-9c0d-1e2f3a4b5c6d.mp4",
+  "uploadDate": "2024-01-15T10:30:00Z",
+  "mimeType": "video/mp4",
+  "duration": 120
+}</code></pre>
+    </div>
+
+    <h2>GET /media/:filename</h2>
+    <div class="endpoint-card">
+      <div>
+        <span class="method-badge method-get">GET</span>
+        <code>/api/media/:filename</code>
+      </div>
+      <p>Retrieve metadata about a specific uploaded file.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>filename</td>
+          <td>String</td>
+          <td>Yes</td>
+          <td>UUID filename of the file (URL path parameter)</td>
+        </tr>
+        <tr>
+          <td>type</td>
+          <td>String</td>
+          <td>No</td>
+          <td>File type: 'images' or 'videos' (default: 'images')</td>
+        </tr>
+      </table>
+
+      <h3>Example Request</h3>
+      <pre><code class="language-bash">curl http://localhost:5000/api/media/550e8400-e29b-41d4-a716-446655440000.jpg?type=images</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code class="language-json">{
+  "success": true,
+  "filename": "550e8400-e29b-41d4-a716-446655440000.jpg",
+  "originalName": "photo.jpg",
+  "type": "image",
+  "size": "2.5 MB",
+  "sizeBytes": 2621440,
+  "url": "http://localhost:5000/uploads/images/550e8400-e29b-41d4-a716-446655440000.jpg",
+  "uploadDate": "2024-01-15T10:30:00Z",
+  "mimeType": "image/jpeg"
+}</code></pre>
+    </div>
+
+    <h2>DELETE /media/:filename</h2>
+    <div class="endpoint-card">
+      <div>
+        <span class="method-badge method-delete">DELETE</span>
+        <code>/api/media/:filename</code>
+      </div>
+      <p>Delete a file from the server.</p>
+
+      <h3>Example Request</h3>
+      <pre><code class="language-bash">curl -X DELETE http://localhost:5000/api/media/550e8400-e29b-41d4-a716-446655440000.jpg</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code class="language-json">{
+  "success": true,
+  "message": "File deleted successfully",
+  "filename": "550e8400-e29b-41d4-a716-446655440000.jpg"
+}</code></pre>
+    </div>
+
+    <h2>GET /media/list/:type</h2>
+    <div class="endpoint-card">
+      <div>
+        <span class="method-badge method-get">GET</span>
+        <code>/api/media/list/:type</code>
+      </div>
+      <p>List all files of a specific type (images or videos).</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>type</td>
+          <td>String</td>
+          <td>Yes</td>
+          <td>'images' or 'videos'</td>
+        </tr>
+        <tr>
+          <td>limit</td>
+          <td>Number</td>
+          <td>No</td>
+          <td>Maximum number of files to return (default: 100)</td>
+        </tr>
+        <tr>
+          <td>offset</td>
+          <td>Number</td>
+          <td>No</td>
+          <td>Number of files to skip (for pagination)</td>
+        </tr>
+      </table>
+
+      <h3>Example Request</h3>
+      <pre><code class="language-bash">curl "http://localhost:5000/api/media/list/images?limit=10&offset=0"</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code class="language-json">{
+  "success": true,
+  "type": "images",
+  "data": [
+    {
+      "filename": "550e8400-e29b-41d4-a716-446655440000.jpg",
+      "originalName": "photo1.jpg",
+      "size": "2.5 MB",
+      "url": "http://localhost:5000/uploads/images/550e8400-e29b-41d4-a716-446655440000.jpg",
+      "uploadDate": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "count": 42,
+  "limit": 10,
+  "offset": 0
+}</code></pre>
+    </div>
+
+    <h2>GET /media/statistics</h2>
+    <div class="endpoint-card">
+      <div>
+        <span class="method-badge method-get">GET</span>
+        <code>/api/media/statistics</code>
+      </div>
+      <p>Get storage statistics for all uploaded media.</p>
+
+      <h3>Example Request</h3>
+      <pre><code class="language-bash">curl http://localhost:5000/api/media/statistics</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "images": {
+      "count": 42,
+      "totalSize": "2.3 GB",
+      "totalSizeBytes": 2471435264,
+      "averageSize": "56 MB"
+    },
+    "videos": {
+      "count": 8,
+      "totalSize": "10.5 GB",
+      "totalSizeBytes": 11274289152,
+      "averageSize": "1.3 GB"
+    },
+    "total": {
+      "fileCount": 50,
+      "totalSize": "12.8 GB",
+      "totalSizeBytes": 13745724416
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h2>Error Codes Reference</h2>
+    <table>
+      <tr>
+        <th>Code</th>
+        <th>Status</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>FILE_TOO_LARGE</td>
+        <td>413</td>
+        <td>File exceeds size limit</td>
+      </tr>
+      <tr>
+        <td>INVALID_FILE_TYPE</td>
+        <td>400</td>
+        <td>File format not supported</td>
+      </tr>
+      <tr>
+        <td>FILE_NOT_FOUND</td>
+        <td>404</td>
+        <td>Requested file doesn't exist</td>
+      </tr>
+      <tr>
+        <td>UPLOAD_FAILED</td>
+        <td>500</td>
+        <td>Server error during upload</td>
+      </tr>
+      <tr>
+        <td>UNAUTHORIZED</td>
+        <td>401</td>
+        <td>Missing or invalid API key</td>
+      </tr>
+      <tr>
+        <td>RATE_LIMIT_EXCEEDED</td>
+        <td>429</td>
+        <td>Too many requests from this IP</td>
+      </tr>
+    </table>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre code').forEach(block => {
+          hljs.highlightElement(block);
+        });
+        document.querySelectorAll('pre').forEach(pre => {
+          if (!pre.querySelector('.copy-btn')) {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.textContent = 'Copy';
+            button.onclick = () => {
+              const code = pre.innerText.replace('Copy', '').trim();
+              navigator.clipboard.writeText(code);
+              button.textContent = 'Copied!';
+              setTimeout(() => button.textContent = 'Copy', 2000);
+            };
+            pre.appendChild(button);
+          }
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>

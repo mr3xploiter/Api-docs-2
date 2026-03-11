@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Integration - Media Upload API Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/highlight.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --radius: 0.625rem;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary); }
+    h2 { font-size: 1.8rem; margin: 2.5rem 0 1rem; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; }
+    h3 { font-size: 1.3rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    p { margin-bottom: 1.25rem; color: var(--text-secondary); line-height: 1.8; }
+    a { color: var(--primary); text-decoration: none; border-bottom: 1px solid rgba(59, 130, 246, 0.3); }
+    a:hover { border-bottom-color: var(--primary); }
+    pre { background: var(--background); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; position: relative; }
+    code { font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem; color: #a6acaf; }
+    .alert { padding: 1.25rem 1.5rem; border-radius: var(--radius); margin: 1.5rem 0; border-left: 4px solid var(--primary); background: rgba(59, 130, 246, 0.08); color: var(--text); }
+    .alert strong { color: var(--text); }
+    .copy-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: calc(var(--radius) / 2); cursor: pointer; font-size: 0.85rem; }
+    .copy-btn:hover { background: var(--primary-dark); }
+    .copy-btn.copied { background: #10b981; }
+    ul { margin: 1rem 0 1.25rem 2rem; }
+    li { margin-bottom: 0.5rem; color: var(--text-secondary); }
+    .back-link { display: inline-block; margin-bottom: 2rem; padding: 0.75rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--primary); text-decoration: none; }
+    .back-link:hover { background: rgba(59, 130, 246, 0.1); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <h1>Angular Integration</h1>
+    <p>Complete guide to integrating the Media Upload API with Angular applications (Angular 14+).</p>
+
+    <h2>Installation</h2>
+    <pre><code class="language-bash">npm install axios</code></pre>
+
+    <h2>Service Implementation</h2>
+    <pre><code class="language-typescript">// media-upload.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpEvent, HttpProgressEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface UploadResponse {
+  success: boolean;
+  type: string;
+  filename: string;
+  url: string;
+  size: string;
+  uploadDate: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MediaUploadService {
+  private apiUrl = 'http://localhost:5000/api';
+
+  constructor(private http: HttpClient) {}
+
+  uploadImage(file: File): Observable&lt;UploadResponse&gt; {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post&lt;UploadResponse&gt;(
+      `${this.apiUrl}/upload/image`,
+      formData
+    );
+  }
+
+  uploadVideo(file: File): Observable&lt;UploadResponse&gt; {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post&lt;UploadResponse&gt;(
+      `${this.apiUrl}/upload/video`,
+      formData
+    );
+  }
+
+  uploadWithProgress(
+    file: File,
+    type: 'image' | 'video' = 'image'
+  ): Observable&lt;HttpEvent&lt;UploadResponse&gt;&gt; {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post&lt;UploadResponse&gt;(
+      `${this.apiUrl}/upload/${type}`,
+      formData,
+      { reportProgress: true, responseType: 'json' }
+    );
+  }
+
+  getMediaInfo(filename: string): Observable&lt;any&gt; {
+    return this.http.get(`${this.apiUrl}/media/${filename}`);
+  }
+
+  deleteMedia(filename: string): Observable&lt;any&gt; {
+    return this.http.delete(`${this.apiUrl}/media/${filename}`);
+  }
+
+  listMedia(type: 'images' | 'videos'): Observable&lt;any&gt; {
+    return this.http.get(`${this.apiUrl}/media/list/${type}`);
+  }
+
+  getStatistics(): Observable&lt;any&gt; {
+    return this.http.get(`${this.apiUrl}/media/statistics`);
+  }
+}</code></pre>
+
+    <h2>Component Implementation</h2>
+    <pre><code class="language-typescript">// uploader.component.ts
+import { Component } from '@angular/core';
+import { MediaUploadService, UploadResponse } from './services/media-upload.service';
+
+@Component({
+  selector: 'app-uploader',
+  templateUrl: './uploader.component.html',
+  styleUrls: ['./uploader.component.css']
+})
+export class UploaderComponent {
+  file: File | null = null;
+  uploading = false;
+  error = '';
+  url = '';
+  progress = 0;
+  uploadedFiles: UploadResponse[] = [];
+
+  constructor(private mediaUploadService: MediaUploadService) {}
+
+  handleFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.file = input.files ? input.files[0] : null;
+    this.error = '';
+  }
+
+  async uploadFile(): Promise&lt;void&gt; {
+    if (!this.file) return;
+
+    this.uploading = true;
+    this.error = '';
+
+    try {
+      const response = await this.mediaUploadService
+        .uploadImage(this.file)
+        .toPromise();
+
+      if (response?.success) {
+        this.url = response.url;
+        this.uploadedFiles.push(response);
+        this.file = null;
+      } else {
+        this.error = 'Upload failed';
+      }
+    } catch (err) {
+      this.error = 'Upload error: ' + (err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      this.uploading = false;
+    }
+  }
+
+  uploadWithProgress(): void {
+    if (!this.file) return;
+
+    this.uploading = true;
+    this.error = '';
+
+    this.mediaUploadService
+      .uploadWithProgress(this.file)
+      .subscribe({
+        next: (event: any) => {
+          if (event.type === 4) {
+            this.url = event.body.url;
+            this.uploadedFiles.push(event.body);
+            this.file = null;
+          }
+        },
+        error: (err) => {
+          this.error = 'Upload failed: ' + err.message;
+          this.uploading = false;
+        },
+        complete: () => {
+          this.uploading = false;
+          this.progress = 0;
+        }
+      });
+  }
+
+  deleteFile(filename: string): void {
+    this.mediaUploadService
+      .deleteMedia(filename)
+      .subscribe({
+        next: () => {
+          this.uploadedFiles = this.uploadedFiles.filter(f => f.filename !== filename);
+        },
+        error: (err) => {
+          console.error('Delete failed:', err);
+        }
+      });
+  }
+}</code></pre>
+
+    <h2>Template</h2>
+    <pre><code class="language-html">&lt;!-- uploader.component.html --&gt;
+&lt;div class="uploader-container"&gt;
+  &lt;h2&gt;Upload Media&lt;/h2&gt;
+
+  &lt;div class="upload-form"&gt;
+    &lt;input 
+      type="file" 
+      (change)="handleFileSelect($event)"
+      #fileInput
+    /&gt;
+    &lt;button 
+      (click)="uploadFile()"
+      [disabled]="!file || uploading"
+      class="btn-primary"
+    &gt;
+      {{ uploading ? 'Uploading...' : 'Upload' }}
+    &lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;p *ngIf="error" class="error"&gt;{{ error }}&lt;/p&gt;
+
+  &lt;div *ngIf="url" class="preview"&gt;
+    &lt;img [src]="url" alt="Uploaded" /&gt;
+  &lt;/div&gt;
+
+  &lt;div *ngIf="uploading" class="progress"&gt;
+    &lt;div [style.width.%]="progress"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="uploaded-list"&gt;
+    &lt;h3&gt;Uploaded Files&lt;/h3&gt;
+    &lt;div *ngFor="let file of uploadedFiles" class="file-item"&gt;
+      &lt;img [src]="file.url" [alt]="file.filename" /&gt;
+      &lt;p&gt;{{ file.filename }}&lt;/p&gt;
+      &lt;button (click)="deleteFile(file.filename)" class="btn-danger"&gt;
+        Delete
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+    <h2>Module Setup</h2>
+    <pre><code class="language-typescript">// app.module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+
+import { AppComponent } from './app.component';
+import { UploaderComponent } from './components/uploader/uploader.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    UploaderComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }</code></pre>
+
+    <h2>Drag and Drop Upload</h2>
+    <pre><code class="language-typescript">// uploader.component.ts
+import { Component, HostListener } from '@angular/core';
+
+@Component({
+  selector: 'app-uploader',
+  template: `
+    &lt;div 
+      class="drop-zone"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      [class.active]="dragover"
+    &gt;
+      &lt;p&gt;Drop files here&lt;/p&gt;
+      &lt;input 
+        type="file" 
+        (change)="handleFileSelect($event)"
+        #fileInput
+        hidden
+      /&gt;
+      &lt;button (click)="fileInput.click()"&gt;
+        Choose File
+      &lt;/button&gt;
+    &lt;/div&gt;
+  `
+})
+export class UploaderComponent {
+  dragover = false;
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.dragover = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.dragover = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragover = false;
+    const files = event.dataTransfer?.files;
+    if (files) {
+      this.file = files[0];
+    }
+  }
+}</code></pre>
+
+    <div class="alert">
+      <strong>Tip:</strong> Use the HttpClientModule for making API requests in Angular applications.
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre code').forEach(block => {
+          hljs.highlightElement(block);
+        });
+        document.querySelectorAll('pre').forEach(pre => {
+          if (!pre.querySelector('.copy-btn')) {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.textContent = 'Copy';
+            button.onclick = () => {
+              const code = pre.innerText.replace('Copy', '').trim();
+              navigator.clipboard.writeText(code);
+              button.textContent = 'Copied!';
+              setTimeout(() => button.textContent = 'Copy', 2000);
+            };
+            pre.appendChild(button);
+          }
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>

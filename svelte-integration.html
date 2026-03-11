@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Svelte Integration - Media Upload API Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/highlight.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --radius: 0.625rem;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary); }
+    h2 { font-size: 1.8rem; margin: 2.5rem 0 1rem; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; }
+    h3 { font-size: 1.3rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    p { margin-bottom: 1.25rem; color: var(--text-secondary); line-height: 1.8; }
+    a { color: var(--primary); text-decoration: none; border-bottom: 1px solid rgba(59, 130, 246, 0.3); }
+    a:hover { border-bottom-color: var(--primary); }
+    pre { background: var(--background); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; position: relative; }
+    code { font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem; color: #a6acaf; }
+    .alert { padding: 1.25rem 1.5rem; border-radius: var(--radius); margin: 1.5rem 0; border-left: 4px solid var(--primary); background: rgba(59, 130, 246, 0.08); color: var(--text); }
+    .copy-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: calc(var(--radius) / 2); cursor: pointer; font-size: 0.85rem; }
+    .copy-btn:hover { background: var(--primary-dark); }
+    .copy-btn.copied { background: #10b981; }
+    ul { margin: 1rem 0 1.25rem 2rem; }
+    li { margin-bottom: 0.5rem; color: var(--text-secondary); }
+    .back-link { display: inline-block; margin-bottom: 2rem; padding: 0.75rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--primary); text-decoration: none; }
+    .back-link:hover { background: rgba(59, 130, 246, 0.1); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <h1>Svelte Integration</h1>
+    <p>Complete guide to integrating the Media Upload API with Svelte and SvelteKit applications.</p>
+
+    <h2>Installation</h2>
+    <pre><code class="language-bash">npm install</code></pre>
+
+    <h2>Svelte Component</h2>
+    <pre><code class="language-svelte">&lt;script&gt;
+  let file;
+  let uploading = false;
+  let error = '';
+  let url = '';
+  let uploadedFiles = [];
+
+  const handleFileSelect = (e) => {
+    file = e.target.files[0];
+    error = '';
+  };
+
+  const uploadFile = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploading = true;
+    error = '';
+
+    try {
+      const response = await fetch(
+        'http://localhost:5000/api/upload/image',
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        url = data.url;
+        uploadedFiles = [...uploadedFiles, data];
+        file = null;
+      } else {
+        error = data.error;
+      }
+    } catch (err) {
+      error = 'Upload failed: ' + err.message;
+    } finally {
+      uploading = false;
+    }
+  };
+
+  const deleteFile = async (filename) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/media/${filename}`,
+        { method: 'DELETE' }
+      );
+
+      if (response.ok) {
+        uploadedFiles = uploadedFiles.filter(f => f.filename !== filename);
+      }
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
+  };
+&lt;/script&gt;
+
+&lt;div class="uploader"&gt;
+  &lt;input 
+    type="file" 
+    on:change={handleFileSelect}
+  /&gt;
+  &lt;button 
+    on:click={uploadFile}
+    disabled={!file || uploading}
+  &gt;
+    {uploading ? 'Uploading...' : 'Upload'}
+  &lt;/button&gt;
+
+  {#if error}
+    &lt;p class="error"&gt;{error}&lt;/p&gt;
+  {/if}
+
+  {#if url}
+    &lt;img src={url} alt="Uploaded" /&gt;
+  {/if}
+
+  &lt;div class="uploaded-list"&gt;
+    {#each uploadedFiles as item (item.filename)}
+      &lt;div class="file-item"&gt;
+        &lt;img src={item.url} alt={item.filename} /&gt;
+        &lt;p&gt;{item.filename}&lt;/p&gt;
+        &lt;button on:click={() => deleteFile(item.filename)}&gt;
+          Delete
+        &lt;/button&gt;
+      &lt;/div&gt;
+    {/each}
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  .uploader {
+    padding: 2rem;
+    border: 2px dashed #3b82f6;
+    border-radius: 8px;
+  }
+
+  .error {
+    color: #ef4444;
+    margin-top: 1rem;
+  }
+
+  img {
+    max-width: 100%;
+    margin-top: 1rem;
+    border-radius: 8px;
+  }
+
+  .uploaded-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .file-item {
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .file-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+&lt;/style&gt;</code></pre>
+
+    <h2>Custom Store</h2>
+    <pre><code class="language-javascript">// stores/mediaStore.js
+import { writable } from 'svelte/store';
+
+export const createMediaStore = () => {
+  const { subscribe, set, update } = writable({
+    files: [],
+    uploading: false,
+    error: null
+  });
+
+  return {
+    subscribe,
+    uploadFile: async (file) => {
+      update(state => ({ ...state, uploading: true, error: null }));
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch(
+          'http://localhost:5000/api/upload/image',
+          { method: 'POST', body: formData }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          update(state => ({
+            ...state,
+            files: [...state.files, data],
+            uploading: false
+          }));
+        } else {
+          update(state => ({
+            ...state,
+            error: data.error,
+            uploading: false
+          }));
+        }
+      } catch (err) {
+        update(state => ({
+          ...state,
+          error: err.message,
+          uploading: false
+        }));
+      }
+    },
+    deleteFile: async (filename) => {
+      try {
+        await fetch(
+          `http://localhost:5000/api/media/${filename}`,
+          { method: 'DELETE' }
+        );
+
+        update(state => ({
+          ...state,
+          files: state.files.filter(f => f.filename !== filename)
+        }));
+      } catch (err) {
+        console.error('Delete failed:', err);
+      }
+    }
+  };
+};
+
+export const mediaStore = createMediaStore();</code></pre>
+
+    <h2>Using Store in Component</h2>
+    <pre><code class="language-svelte">&lt;script&gt;
+  import { mediaStore } from './stores/mediaStore.js';
+
+  let file;
+
+  const handleFileSelect = (e) => {
+    file = e.target.files[0];
+  };
+
+  const handleUpload = () => {
+    if (file) {
+      mediaStore.uploadFile(file);
+      file = null;
+    }
+  };
+&lt;/script&gt;
+
+&lt;div&gt;
+  &lt;input type="file" on:change={handleFileSelect} /&gt;
+  &lt;button on:click={handleUpload} disabled={$mediaStore.uploading}&gt;
+    {$mediaStore.uploading ? 'Uploading...' : 'Upload'}
+  &lt;/button&gt;
+
+  {#if $mediaStore.error}
+    &lt;p class="error"&gt;{$mediaStore.error}&lt;/p&gt;
+  {/if}
+
+  &lt;div&gt;
+    {#each $mediaStore.files as file (file.filename)}
+      &lt;div&gt;
+        &lt;img src={file.url} alt={file.filename} /&gt;
+        &lt;button on:click={() => mediaStore.deleteFile(file.filename)}&gt;
+          Delete
+        &lt;/button&gt;
+      &lt;/div&gt;
+    {/each}
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+    <h2>SvelteKit Server Load</h2>
+    <pre><code class="language-javascript">// +page.server.js
+export async function POST({ request }) {
+  const formData = await request.formData();
+  const file = formData.get('file');
+
+  try {
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+
+    const response = await fetch(
+      'http://localhost:5000/api/upload/image',
+      {
+        method: 'POST',
+        body: uploadFormData
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      return { success: true, url: data.url };
+    } else {
+      return { success: false, error: data.error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}</code></pre>
+
+    <h2>Drag and Drop Support</h2>
+    <pre><code class="language-svelte">&lt;script&gt;
+  let dragover = false;
+  let file;
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    dragover = false;
+    file = e.dataTransfer.files[0];
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    dragover = true;
+  };
+&lt;/script&gt;
+
+&lt;div 
+  class="drop-zone"
+  on:drop={handleDrop}
+  on:dragover={handleDragOver}
+  on:dragleave={() => dragover = false}
+  class:active={dragover}
+&gt;
+  &lt;p&gt;Drop files here&lt;/p&gt;
+  &lt;input 
+    type="file" 
+    bind:files
+    hidden
+    on:change={(e) => file = e.target.files[0]}
+  /&gt;
+  &lt;button on:click={() => document.querySelector('input').click()}&gt;
+    Choose File
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  .drop-zone {
+    border: 2px dashed #3b82f6;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .drop-zone.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: #2563eb;
+  }
+&lt;/style&gt;</code></pre>
+
+    <div class="alert">
+      <strong>Tip:</strong> Svelte stores are reactive and perfect for managing upload state across components.
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre code').forEach(block => {
+          hljs.highlightElement(block);
+        });
+        document.querySelectorAll('pre').forEach(pre => {
+          if (!pre.querySelector('.copy-btn')) {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.textContent = 'Copy';
+            button.onclick = () => {
+              const code = pre.innerText.replace('Copy', '').trim();
+              navigator.clipboard.writeText(code);
+              button.textContent = 'Copied!';
+              setTimeout(() => button.textContent = 'Copy', 2000);
+            };
+            pre.appendChild(button);
+          }
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>
